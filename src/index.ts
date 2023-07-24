@@ -2,12 +2,12 @@
 // import {allRoutes } from "./routes";
 import cors from 'cors'
 import Logging from './helpers/Logging'
-import { allRoutes } from './routes'
+// import { allRoutes } from './routes'
 const express = require('express')
 const app = express()
 const port = 4000 || process.env.PORT
 
-require('./database/database')
+require('./config/database')
 
 
 app.use((req:any, res:any, next:any) => {
@@ -47,9 +47,9 @@ app.use('/posts',express.static('posts'))
 
 
 
-allRoutes.map((e)=>{
-    return app.use(e.path,e.route)
-})
+// allRoutes.map((e)=>{
+//     return app.use(e.path,e.route)
+// })
 
 
 const server = app.listen(port,()=>{
