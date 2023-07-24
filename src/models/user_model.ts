@@ -1,6 +1,7 @@
 import mongoose, { Schema, Types } from "mongoose";
 import bcrypt from 'bcrypt'
 import { response } from "../helpers/Response";
+import { NextFunction } from "express";
 
 export interface IUser {
     username:string,
@@ -23,11 +24,11 @@ export interface IUserModel extends IUser, Document {
 
 const userSchema:Schema = new mongoose.Schema({
     username:String,
-    email:String,
+    email:{type:String,unique:true},
     city:String,
     gender:String,
     zip_code:String,
-    profile:String,
+    profile:{type:String,default:'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'},
     state:
     {
         type:mongoose.Types.ObjectId,
@@ -55,11 +56,8 @@ userSchema.pre('save',async function(next){
   }
   })
   
-  userSchema.methods.comparePassword = async function (password:string,res:Response){
+  userSchema.methods.comparePassword = async function (password:string,res:Response,next:NextFunction){
   const matchPassword = await bcrypt.compare(password,this.password)
-  if (!matchPassword) {
-    response(400,0,'invalid credentials ','check credentials',res)
-  }
   return matchPassword;
   }
   

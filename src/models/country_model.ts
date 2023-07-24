@@ -10,7 +10,7 @@ export interface ICountryModel extends Country, Document {}
 
 const countrySchema:Schema = new mongoose.Schema({
     country:String,
-    state:{type:mongoose.Types.ObjectId,ref:'State'}
+    state:[{type:mongoose.Types.ObjectId,ref:'State'}]
  
           
 },{
