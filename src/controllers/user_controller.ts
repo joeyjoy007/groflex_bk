@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import user_model from "../models/user_model";
 import { response } from "../helpers/Response";
 import { generateToken } from "../helpers/Generate_tokens";
+import bcrypt from 'bcrypt'
 
 export const createUser:RequestHandler=async(req,res,next)=>{
     try {
@@ -32,7 +33,7 @@ export const loginUser: RequestHandler = async (req, res, next) => {
         if (!email || !password) {
             response(400, 0, "Complete details", "Details not found", res);
         } else {
-            const user = await user_model.findOne({ email });
+            const user = await user_model.findOne({ email }).populate('state country');
             if (!user) {
                 response(400, 0, "User not found", "User not found", res);
             } else {
@@ -49,6 +50,48 @@ export const loginUser: RequestHandler = async (req, res, next) => {
         response(400, 0, error.message, "User not found", res);
     }
 };
+
+export const reset_password:RequestHandler = async(req,res,next)=>{
+    try {
+      const pass = await user_model.findByIdAndUpdate({_id:req.body.userId},{
+        password:await bcrypt.hash(req.body.password,10)
+      })
+      
+      if(pass){
+        response(200,1,pass,'password updated',res)
+      }
+        else{
+            response(400,0,pass,'password not updated',res)
+        }
+       
+    } catch (error: any) {
+        response(400,0,error.message,'password not updated',res)
+    }
+}
+
+export const reset_password_by_mail:RequestHandler = async(req,res,next)=>{
+    try {
+    const check: any = await user_model.find({email:req?.body?.email})
+    if(check.length > 0){
+        console.log(check.length)
+        const update = await user_model.findByIdAndUpdate({_id:check[0]._id},{
+            password:await bcrypt.hash(req.body.password,10)
+        })
+        if(update){
+            response(200,1,update,'password updated',res)
+        }
+        else{
+            response(400,0,"passwords not updated",'password not updated',res)
+        }
+    }
+    else{
+        response(400,0,'mail not found','mail not found',res)
+    }
+    } catch (error: any) {
+        response(400,0,error.message,'password not updated',res)
+    }
+}
+
 
 
 export const getAllUser:RequestHandler = async(req:any,res,next)=>{
@@ -147,7 +190,7 @@ export const page_controller:RequestHandler = async(req,res,next)=>{
 
         const skip = (page -1)* limit
         const count = await user_model.find().count();
-        const pagination = await user_model.find().skip(skip).limit(limit);
+        const pagination = await user_model.find().skip(skip).limit(limit).populate('state country')
         if(pagination){
             response(200,1,{pagination,count},'paginated',res)
         }else{

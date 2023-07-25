@@ -11,4 +11,6 @@ router.route('/single').post(user_controller_1.getUserDetail);
 router.route('/search/:searchKey').post(user_controller_1.searchUser);
 router.route('/update').patch(user_controller_1.updateUser);
 router.route('/page').post(user_controller_1.page_controller);
+router.route('/password').patch(user_controller_1.reset_password);
+router.route('/mail').patch(user_controller_1.reset_password_by_mail);
 module.exports = router;

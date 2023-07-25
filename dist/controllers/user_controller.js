@@ -12,10 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.page_controller = exports.searchUser = exports.updateUser = exports.deleteUser = exports.getUserDetail = exports.getAllUser = exports.loginUser = exports.createUser = void 0;
+exports.page_controller = exports.searchUser = exports.updateUser = exports.deleteUser = exports.getUserDetail = exports.getAllUser = exports.reset_password_by_mail = exports.reset_password = exports.loginUser = exports.createUser = void 0;
 const user_model_1 = __importDefault(require("../models/user_model"));
 const Response_1 = require("../helpers/Response");
 const Generate_tokens_1 = require("../helpers/Generate_tokens");
+const bcrypt_1 = __importDefault(require("bcrypt"));
 const createUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const check = yield user_model_1.default.find({ email: req.body.email });
@@ -46,7 +47,7 @@ const loginUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function
             (0, Response_1.response)(400, 0, "Complete details", "Details not found", res);
         }
         else {
-            const user = yield user_model_1.default.findOne({ email });
+            const user = yield user_model_1.default.findOne({ email }).populate('state country');
             if (!user) {
                 (0, Response_1.response)(400, 0, "User not found", "User not found", res);
             }
@@ -67,6 +68,48 @@ const loginUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.loginUser = loginUser;
+const reset_password = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const pass = yield user_model_1.default.findByIdAndUpdate({ _id: req.body.userId }, {
+            password: yield bcrypt_1.default.hash(req.body.password, 10)
+        });
+        if (pass) {
+            (0, Response_1.response)(200, 1, pass, 'password updated', res);
+        }
+        else {
+            (0, Response_1.response)(400, 0, pass, 'password not updated', res);
+        }
+    }
+    catch (error) {
+        (0, Response_1.response)(400, 0, error.message, 'password not updated', res);
+    }
+});
+exports.reset_password = reset_password;
+const reset_password_by_mail = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const check = yield user_model_1.default.find({ email: (_a = req === null || req === void 0 ? void 0 : req.body) === null || _a === void 0 ? void 0 : _a.email });
+        if (check.length > 0) {
+            console.log(check.length);
+            const update = yield user_model_1.default.findByIdAndUpdate({ _id: check[0]._id }, {
+                password: yield bcrypt_1.default.hash(req.body.password, 10)
+            });
+            if (update) {
+                (0, Response_1.response)(200, 1, update, 'password updated', res);
+            }
+            else {
+                (0, Response_1.response)(400, 0, "passwords not updated", 'password not updated', res);
+            }
+        }
+        else {
+            (0, Response_1.response)(400, 0, 'mail not found', 'mail not found', res);
+        }
+    }
+    catch (error) {
+        (0, Response_1.response)(400, 0, error.message, 'password not updated', res);
+    }
+});
+exports.reset_password_by_mail = reset_password_by_mail;
 const getAllUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const searchUser = yield user_model_1.default.find().populate('country state');
@@ -157,7 +200,7 @@ const page_controller = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         const limit = req.body.limit || 5;
         const skip = (page - 1) * limit;
         const count = yield user_model_1.default.find().count();
-        const pagination = yield user_model_1.default.find().skip(skip).limit(limit);
+        const pagination = yield user_model_1.default.find().skip(skip).limit(limit).populate('state country');
         if (pagination) {
             (0, Response_1.response)(200, 1, { pagination, count }, 'paginated', res);
         }
