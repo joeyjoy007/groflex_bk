@@ -42,7 +42,7 @@ const createState = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
 exports.createState = createState;
 const getAllState = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const get_state = yield state_model_1.default.find();
+        const get_state = yield state_model_1.default.find({ country: req.body.countryId });
         if (get_state) {
             (0, Response_1.response)(201, 1, get_state, 'state fetched', res);
         }

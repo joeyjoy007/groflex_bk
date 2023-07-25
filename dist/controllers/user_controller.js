@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.searchUser = exports.updateUser = exports.deleteUser = exports.getUserDetail = exports.getAllUser = exports.loginUser = exports.createUser = void 0;
+exports.page_controller = exports.searchUser = exports.updateUser = exports.deleteUser = exports.getUserDetail = exports.getAllUser = exports.loginUser = exports.createUser = void 0;
 const user_model_1 = __importDefault(require("../models/user_model"));
 const Response_1 = require("../helpers/Response");
 const Generate_tokens_1 = require("../helpers/Generate_tokens");
@@ -69,7 +69,7 @@ const loginUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function
 exports.loginUser = loginUser;
 const getAllUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const searchUser = yield user_model_1.default.find();
+        const searchUser = yield user_model_1.default.find().populate('country state');
         if (searchUser.length > 0) {
             (0, Response_1.response)(200, 1, searchUser, 'user found', res);
         }
@@ -115,8 +115,10 @@ const deleteUser = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
 });
 exports.deleteUser = deleteUser;
 const updateUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.body.userId);
     try {
         const checkUser = yield user_model_1.default.findByIdAndUpdate({ _id: req.body.userId }, req.body);
+        console.log(checkUser);
         if (checkUser) {
             (0, Response_1.response)(201, 1, checkUser, 'user updated', res);
         }
@@ -148,3 +150,23 @@ const searchUser = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.searchUser = searchUser;
+const page_controller = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        console.log(req.body);
+        const page = req.body.page || 1;
+        const limit = req.body.limit || 5;
+        const skip = (page - 1) * limit;
+        const count = yield user_model_1.default.find().count();
+        const pagination = yield user_model_1.default.find().skip(skip).limit(limit);
+        if (pagination) {
+            (0, Response_1.response)(200, 1, { pagination, count }, 'paginated', res);
+        }
+        else {
+            (0, Response_1.response)(400, 0, 'page error', 'page error', res);
+        }
+    }
+    catch (error) {
+        (0, Response_1.response)(400, 0, error.message, 'page error', res);
+    }
+});
+exports.page_controller = page_controller;

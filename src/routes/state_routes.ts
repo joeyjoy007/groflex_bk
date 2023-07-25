@@ -6,7 +6,7 @@ const router = Router()
 
 
 router.route('/').post(createState);
-router.route('/get').get(getAllState);
+router.route('/get').post(getAllState);
 
 
 

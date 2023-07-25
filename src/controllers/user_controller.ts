@@ -53,7 +53,7 @@ export const loginUser: RequestHandler = async (req, res, next) => {
 
 export const getAllUser:RequestHandler = async(req:any,res,next)=>{
     try {
-        const searchUser = await user_model.find()
+        const searchUser = await user_model.find().populate('country state')
         if(searchUser.length > 0){
             response(200,1,searchUser,'user found',res)
         }else{
@@ -99,8 +99,11 @@ export const deleteUser:RequestHandler = async (req,res,next)=>{
 }
 
 export const updateUser:RequestHandler = async (req,res,next)=>{
+    console.log(req.body.userId)
+
     try {
         const checkUser = await user_model.findByIdAndUpdate({_id:req.body.userId},req.body)
+        console.log(checkUser)
       if(checkUser){
         response(201,1,checkUser,'user updated',res)
 
@@ -133,5 +136,26 @@ export const searchUser:RequestHandler = async(req,res,next)=>{
     }
     catch (error: any) {
         response(400,0,error.message,'user not fetched',res)
+    }
+}
+
+export const page_controller:RequestHandler = async(req,res,next)=>{
+    try {
+        console.log(req.body)
+        const page = req.body.page || 1
+        const limit = req.body.limit || 5
+
+        const skip = (page -1)* limit
+        const count = await user_model.find().count();
+        const pagination = await user_model.find().skip(skip).limit(limit);
+        if(pagination){
+            response(200,1,{pagination,count},'paginated',res)
+        }else{
+            response(400,0,'page error','page error',res)
+        }
+        
+       
+    } catch (error: any) {
+        response(400,0,error.message,'page error',res)
     }
 }

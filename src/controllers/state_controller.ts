@@ -28,7 +28,7 @@ export const createState:RequestHandler=async(req,res,next)=>{
 
 export const getAllState:RequestHandler=async(req,res,next)=>{
     try {
-            const get_state = await state_model.find();
+            const get_state = await state_model.find({country:req.body.countryId});
             if(get_state){
                 response(201,1,get_state,'state fetched',res)
             }else{

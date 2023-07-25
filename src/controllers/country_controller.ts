@@ -19,7 +19,7 @@ export const createCountry:RequestHandler=async(req,res,next)=>{
 
 export const getAllCountry:RequestHandler=async(req,res,next)=>{
     try {
-            const get_country = await state_model.find();
+            const get_country = await country_model.find().populate('state')
             if(get_country){
                 response(201,1,get_country,'country fetched',res)
             }else{

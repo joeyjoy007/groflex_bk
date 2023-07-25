@@ -31,7 +31,11 @@ const userSchema = new mongoose_1.default.Schema({
     },
     password: String,
     dob: String,
-    interest: String
+    interest: [
+        { type: String,
+            enum: ['Writing', 'Travelling', 'Playing']
+        }
+    ]
 }, {
     timestamps: true
 });

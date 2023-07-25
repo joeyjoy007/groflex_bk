@@ -13,7 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAllCountry = exports.createCountry = void 0;
-const state_model_1 = __importDefault(require("../models/state_model"));
 const Response_1 = require("../helpers/Response");
 const country_model_1 = __importDefault(require("../models/country_model"));
 const createCountry = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -34,7 +33,7 @@ const createCountry = (req, res, next) => __awaiter(void 0, void 0, void 0, func
 exports.createCountry = createCountry;
 const getAllCountry = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const get_country = yield state_model_1.default.find();
+        const get_country = yield country_model_1.default.find().populate('state');
         if (get_country) {
             (0, Response_1.response)(201, 1, get_country, 'country fetched', res);
         }

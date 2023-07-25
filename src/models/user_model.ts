@@ -42,7 +42,12 @@ const userSchema:Schema = new mongoose.Schema({
     },
     password:String,
     dob:String,
-    interest:String
+    interest:[
+      {type:String,
+      enum : ['Writing','Travelling','Playing']
+      }
+
+    ]
           
 },{
   timestamps:true
